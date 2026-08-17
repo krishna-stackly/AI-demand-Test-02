@@ -1,0 +1,6 @@
+# ML/forecasting dependencies. Installed only in the Celery worker image.
+scikit-learn==1.3.2
+joblib==1.3.2
+statsmodels==0.14.0
+prophet==1.1.5
+xgboost==2.0.3

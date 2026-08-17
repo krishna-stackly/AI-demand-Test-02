@@ -1,0 +1,4 @@
+# Default application/runtime dependencies.
+# Use requirements/api.txt for the FastAPI image.
+# Use requirements/worker.txt + CPU-only PyTorch for the Celery worker.
+-r requirements/api.txt

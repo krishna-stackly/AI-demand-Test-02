@@ -1,0 +1,40 @@
+# Git / editor metadata
+.git/
+.gitignore
+.vscode/
+.idea/
+
+# Secrets
+.env
+.env.*
+!.env.example
+
+# Python caches / virtual environments
+__pycache__/
+*.pyc
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+venv/
+.venv/
+
+# Logs / local tooling
+*.log
+Testing_markdown.md/
+*.md
+
+# Local database files
+*.db
+*.sqlite
+*.sqlite3
+
+# Runtime-generated data is provided through Compose volumes.
+data/processed/
+fastapi_app/media/uploads/
+
+# Trained model artifacts are stored in the Compose model volume.
+model_artifacts/*.pkl
+model_artifacts/*.joblib
+model_artifacts/*.pt
+model_artifacts/*.pth
+model_artifacts/*.onnx

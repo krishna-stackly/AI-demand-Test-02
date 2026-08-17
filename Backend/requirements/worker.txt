@@ -1,0 +1,6 @@
+# Celery worker dependencies.
+-r api.txt
+-r ml.txt
+
+# Install CPU-only PyTorch separately from the PyTorch CPU index:
+# pip install --index-url https://download.pytorch.org/whl/cpu torch==2.2.2
