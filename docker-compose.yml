@@ -1,0 +1,89 @@
+services:
+  mysql:
+    image: mysql:8.0
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+      MYSQL_DATABASE: ${MYSQL_DATABASE}
+      MYSQL_USER: ${MYSQL_USER}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD}
+    volumes:
+      - mysql_data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-p${MYSQL_ROOT_PASSWORD}"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+    # Not published to the host by default — only other containers need it.
+    # Uncomment to inspect the DB directly from your machine:
+    # ports:
+    #   - "3306:3306"
+
+  redis:
+    image: redis:7-alpine
+    restart: unless-stopped
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+
+  backend:
+    build:
+      context: ./Backend
+      dockerfile: Dockerfile
+    restart: unless-stopped
+    env_file:
+      - ./.env
+    depends_on:
+      mysql:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    volumes:
+      - backend_media:/app/fastapi_app/media
+      - backend_models:/app/model_artifacts
+      - backend_processed_data:/app/data/processed
+    ports:
+      # Exposed directly for local API testing (curl/Swagger UI at /docs).
+      # In production, remove this and reach the API only via nginx.
+      - "8000:8000"
+
+  celery-worker:
+    build:
+      context: ./Backend
+      dockerfile: Dockerfile
+    restart: unless-stopped
+    command: ["celery", "-A", "fastapi_app.celery_app.celery_app", "worker", "--loglevel=info"]
+    env_file:
+      - ./.env
+    depends_on:
+      mysql:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    volumes:
+      - backend_media:/app/fastapi_app/media
+      - backend_models:/app/model_artifacts
+      - backend_processed_data:/app/data/processed
+
+  nginx:
+    build:
+      context: .
+      dockerfile: nginx/Dockerfile
+      args:
+        VITE_API_BASE_URL: ${VITE_API_BASE_URL:-/api}
+    restart: unless-stopped
+    depends_on:
+      - backend
+    ports:
+      - "80:80"       # combined app: user site at /, admin panel at /admin
+
+volumes:
+  mysql_data:
+  redis_data:
+  backend_media:
+  backend_models:
+  backend_processed_data:

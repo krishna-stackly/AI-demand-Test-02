@@ -1,0 +1,26 @@
+# Root .dockerignore — applies to the nginx build (context: .) in docker-compose.yml.
+# The Backend build has its own Backend/.dockerignore for its own context.
+
+.git/
+.gitignore
+*.md
+Testing_markdown.md/
+
+
+
+# Backend isn't needed for the nginx build context at all except through its
+# own separate build — exclude its heavy/generated content here regardless.
+Backend/demand_forecast.db
+Backend/data/
+Backend/model_artifacts/
+Backend/fastapi_app/media/
+Backend/fastapi_app/model_artifacts/
+Backend/fastapi_app/data/models/
+
+# Frontend build artifacts / deps — rebuilt fresh inside the image
+Frontend/app/node_modules/
+Frontend/app/dist/
+# Old pre-merge apps — no longer used by the build, safe to delete from the
+# repo once you've confirmed Frontend/app works
+Frontend/admin/
+Frontend/user/
